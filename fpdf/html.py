@@ -8,6 +8,7 @@ __license__ = "LGPL 3.0"
 
 # Inspired by tuto5.py and several examples from fpdf.org, html2fpdf, etc.
 
+import html
 from .fpdf import FPDF
 from .py3k import PY3K, basestring, unicode, HTMLParser
 
@@ -78,8 +79,8 @@ class HTML2FPDF(HTMLParser):
                 l = self.table_col_width[i:i+colspan]
             else:
                 l = [self.td.get('width','240')]
-            w = sum([self.width2mm(length) for length in l])
-            h = int(self.td.get('height', 0)) // 4 or self.h*1.30
+            w = sum([self.width2mm(lenght) for lenght in l])
+            h = int(self.td.get('height', 0)) / 4 or self.h*1.30
             self.table_h = h
             border = int(self.table.get('border', 0))
             if not self.th:
@@ -99,7 +100,7 @@ class HTML2FPDF(HTMLParser):
             height = h + (self.tfooter and self.tfooter[0][0][1] or 0)
             if self.pdf.y+height>self.pdf.page_break_trigger and not self.th:
                 self.output_table_footer()
-                self.pdf.add_page(same = True)
+                self.pdf.add_page()
                 self.theader_out = self.tfooter_out = False
             if self.tfoot is None and self.thead is None:
                 if not self.theader_out: 
@@ -216,7 +217,7 @@ class HTML2FPDF(HTMLParser):
             # save previous font state:
             self.font_stack.append((self.font_face, self.font_size, self.color))
             if 'color' in attrs:
-                color = hex2dec(attrs['color'])
+                self.color = hex2dec(attrs['color'])
                 self.set_text_color(*color)
                 self.color = color
             if 'face' in attrs:
@@ -397,6 +398,6 @@ class HTMLMixin(object):
     def write_html(self, text, image_map=None):
         "Parse HTML and convert it to PDF"
         h2p = HTML2FPDF(self, image_map)
-        text = h2p.unescape(text) # To deal with HTML entities
+        text = html.unescape(text) # To deal with HTML entities
         h2p.feed(text)
 
